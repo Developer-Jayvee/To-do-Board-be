@@ -2,18 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Contract\TicketProvider;
 use App\Http\Requests\StoreTicketsRequest;
 use App\Http\Requests\UpdateTicketsRequest;
 use App\Models\Tickets;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class TicketsController extends Controller
 {
+    protected $ticketService;
+    public function __construct(TicketProvider $ticketService) {
+        $this->ticketService = $ticketService;
+    }
     /**
      * Display a listing of the resource.
+     *
+     * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        return $this->ticketService->ticketList();
     }
 
     /**
@@ -29,7 +37,7 @@ class TicketsController extends Controller
      */
     public function store(StoreTicketsRequest $request)
     {
-        //
+    
     }
 
     /**
