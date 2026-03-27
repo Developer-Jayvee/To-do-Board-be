@@ -41,6 +41,12 @@ class StoreUserRequest extends FormRequest
         ];
     }
 
+    /**
+     * failedValidation
+     *
+     * @param  mixed $validator
+     * @return void
+     */
     protected function failedValidation(Validator $validator): void
     {
         $errors = $validator->errors();

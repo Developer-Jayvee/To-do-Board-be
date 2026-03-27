@@ -37,7 +37,7 @@ class TicketsController extends Controller
      */
     public function store(StoreTicketsRequest $request)
     {
-    
+        return $this->ticketService->createTicket($request);
     }
 
     /**
