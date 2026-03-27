@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\LabelsController;
 use App\Http\Controllers\TicketsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -18,5 +19,6 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:api'])->group(function () {
         Route::apiResource('ticket',TicketsController::class);
         Route::apiResource('categories',CategoriesController::class);
+        Route::apiResource("labels",LabelsController::class);
     });
 });

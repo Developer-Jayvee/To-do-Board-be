@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::table('tickets',function(Blueprint $table){
             $table->dateTime('expiration_date')->nullable()->change();
-            $table->integer("label_id")->after("expiration_date");
+            if(!Schema::hasColumn('tickets','label_id')){
+                $table->integer("label_id")->after("expiration_date");
+            }
         });
     }
 
