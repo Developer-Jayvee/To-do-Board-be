@@ -2,11 +2,15 @@
 
 namespace App\Services;
 use App\Contract\AuthProvider;
+use App\Models\User;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AuthService implements AuthProvider
 {
+    CONST TOKEN_NAME = 'user-token';
     /**
      * Create a new class instance.
      */
@@ -23,10 +27,31 @@ class AuthService implements AuthProvider
      */
     public function login(array $credentials): JsonResponse
     {
-        $username = $credentials['username'] ?? "";
-        $password = $credentials['password'] ?? "";
 
-        return response()->json([]);
+        try {
+            $username = $credentials['username'] ?? "";
+            $password = $credentials['password'] ?? "";
+
+            if(!$username && !$password){
+                throw new \Exception("Missing credentials", 500);
+            }
+            $userInfo = User::where('username',$username)->first();
+
+            if(!$userInfo){
+                throw new \Exception("User does not exist", 500);
+            }
+            if(!Hash::check($password,$userInfo->password)){
+                throw new \Exception("User credentials is invalid");
+            }
+
+            $token = $userInfo->createToken(self::TOKEN_NAME)->accessToken;
+            return response()->json([
+                'token' => $token,
+                'user' => $userInfo
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
 
     }
     /**
@@ -37,7 +62,31 @@ class AuthService implements AuthProvider
      */
     public function register(Request $request): JsonResponse
     {
+        try {
+            $userInfo = User::where('username',$request->username)->exists();
+            if($userInfo){
+                throw new \Exception('Username is already taken');
+            }
 
-        return response()->json([]);
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email ?? null,
+                'username' => $request->username,
+                'password' => Hash::make($request->password)
+            ]);
+            if($user){
+                //  redirect user to login once registered
+                return self::login([
+                    'username' => $request->username,
+                    'password' => $request->password
+                ]);
+            }
+            throw new \Exception('Failed to create an acoount');
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => $th->getMessage()
+            ],500);
+        }
     }
 }
