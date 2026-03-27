@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class AuthService implements AuthProvider
+class AuthService extends Services implements AuthProvider
 {
     CONST TOKEN_NAME = 'user-token';
     /**
@@ -45,14 +45,14 @@ class AuthService implements AuthProvider
             }
 
             $token = $userInfo->createToken(self::TOKEN_NAME)->accessToken;
-            return response()->json([
+            return $this->successResponse([
                 'token' => $token,
                 'user' => $userInfo
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json(['error' => $th->getMessage()],500);
-        }
+            ],'Successfully Login');
 
+        } catch (\Throwable $th) {
+            return $this->errorResponse($th->getMessage(),500,$th);
+        }
     }
     /**
      * register
@@ -84,9 +84,7 @@ class AuthService implements AuthProvider
             throw new \Exception('Failed to create an acoount');
 
         } catch (\Throwable $th) {
-            return response()->json([
-                'error' => $th->getMessage()
-            ],500);
+            return $this->errorResponse($th->getMessage(),500,$th);
         }
     }
 }
