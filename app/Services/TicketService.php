@@ -25,7 +25,25 @@ class TicketService extends Services implements TicketProvider
      */
     public function createTicket(Request $request): JsonResponse
     {
-        throw new \Exception('Not implemented');
+        try {
+            $ticket = Tickets::create([
+                'code' => 'T001',
+                'title' => $request->title,
+                'description' => $request->description,
+                'label_id' => $request->label_id,
+                'expiration_date' => date($request->expiration_date),
+                'created_by' => $request->created_by,
+            ]);
+
+            if(!$ticket){
+                throw new \Exception("Failed to create ticket \n Try again later");
+            }
+            return $this->successResponse([
+                'ticket' => $ticket
+            ],'Successfully Created Ticket');
+        } catch (\Throwable $th) {
+            return $this->errorResponse($th->getMessage());
+        }
     }
     public function ticketList(): JsonResponse
     {
@@ -33,7 +51,7 @@ class TicketService extends Services implements TicketProvider
             $data =  Cache::remember('ticketList', 60, function() {
                 return Tickets::all();
             });
-            
+
             return $this->successResponse($data);
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage());

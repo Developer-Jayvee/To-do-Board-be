@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 trait ResponseTrait
@@ -38,4 +40,20 @@ trait ResponseTrait
             'error' => $errors
         ],$code);
     }
+    /**
+     * requestFailedResponse
+     *
+     * @param  mixed $validator
+     * @return void
+     */
+    protected function requestFailedResponse(Validator $validator)
+    {
+        $errors = $validator->errors();
+
+        $response = response()->json([
+            'errors' => $errors->messages()
+        ],500);
+        throw new HttpResponseException($response);
+    }
+
 }
