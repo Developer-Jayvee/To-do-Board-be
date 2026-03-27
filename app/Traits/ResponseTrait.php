@@ -16,7 +16,7 @@ trait ResponseTrait
      * @param  mixed $code
      * @return JsonResponse
      */
-    protected function successResponse(array | string $data , string $message = 'Success' ,int $code = 200) : JsonResponse
+    protected function successResponse(mixed $data , string $message = 'Success' ,int $code = 200) : JsonResponse
     {
         return response()->json([
             'data' => $data,
