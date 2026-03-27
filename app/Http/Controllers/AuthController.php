@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Contract\AuthProvider;
+use App\Http\Requests\StoreUserRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AuthController extends Controller
@@ -31,7 +32,7 @@ class AuthController extends Controller
      * @param  Request $request
      * @return void
      */
-    public function register(Request $request): JsonResponse
+    public function register(StoreUserRequest $request): JsonResponse
     {
         return $this->authService->register($request);
     }
