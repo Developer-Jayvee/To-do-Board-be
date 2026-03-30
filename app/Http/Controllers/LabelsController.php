@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Labels;
+use App\Services\CrudService;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -11,6 +12,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class LabelsController extends Controller
 {
     CONST CACHE_TIMER = 60;
+    protected $crudService;
+
+    public function __construct() {
+        $this->crudService = new CrudService(new Labels);
+    }
     /**
      * store new label
      *
@@ -49,22 +55,19 @@ class LabelsController extends Controller
      */
     public function index(): JsonResponse
     {
-        $labels = Labels::all()->collect();
-
-        return $this->successResponse($labels);
+        return $this->crudService->index();
     }
 
    /**
      * Show the form for editing the specified resource.
+     *
+     *  @param  mixed $id
+     * @return JsonResponse
      */
-    public function show(int $id)
+    public function show(int $id): JsonResponse
     {
         try {
-            $label = Labels::find($id);
-            if(!$label){
-                throw new \Exception('No data found.');
-            }
-            return $this->successResponse($label);
+           return $this->crudService->show($id);
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage());
         }
@@ -76,10 +79,7 @@ class LabelsController extends Controller
     public function update(Request $request, int $id)
     {
         try {
-            $label = Labels::find($id);
-            if(!$label){
-                throw new \Exception('No data found.');
-            }
+            $label = $this->crudService->update($request,$id , true);
             $isAlreadyExist = Labels::where('title',$request->title)->exists();
             if($isAlreadyExist){
                 throw new \Exception("{$request->title} is already exists");
@@ -97,11 +97,7 @@ class LabelsController extends Controller
     public function destroy(int $id)
     {
         try {
-            $label = Labels::find($id);
-            if(!$label){
-                throw new \Exception('No data found.');
-            }
-            $label->delete();
+            $data = $this->crudService->destroy($id);
             return $this->successResponse("",'Successfully Deleted');
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage());

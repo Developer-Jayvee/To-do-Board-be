@@ -9,12 +9,13 @@ use App\Contract\TicketProvider;
 
 use App\Services\AuthService;
 use App\Services\TicketService;
+use Illuminate\Contracts\Foundation\Application;
 
 class AppServiceProvider extends ServiceProvider
 {
     public $bindings = [
         AuthProvider::class => AuthService::class,
-        TicketProvider::class => TicketService::class
+        TicketProvider::class => TicketService::class,
     ];
 
     /**
@@ -22,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+
     }
 
     /**
