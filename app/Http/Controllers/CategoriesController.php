@@ -5,15 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCategoriesRequest;
 use App\Http\Requests\UpdateCategoriesRequest;
 use App\Models\Categories;
+use App\Services\CrudService;
+use Illuminate\Http\Client\Request;
 
 class CategoriesController extends Controller
 {
+    protected $crudService;
+
+    public function __construct() {
+        $this->crudService = new CrudService(new Categories);
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        return $this->crudService->index();
     }
 
     /**
@@ -29,15 +36,22 @@ class CategoriesController extends Controller
      */
     public function store(StoreCategoriesRequest $request)
     {
-        //
+        $data = $request->input();
+        $response = $this->crudService->store([
+            'code' => 'CAT001',
+            'title' => 'Test Cat',
+            'sort' => Categories::count() + 1,
+            'created_by' => 1
+        ]);
+        return $response;
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Categories $categories)
+    public function show(int $id)
     {
-        //
+        return $this->crudService->show($id);
     }
 
     /**
@@ -51,16 +65,16 @@ class CategoriesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCategoriesRequest $request, Categories $categories)
+    public function update(UpdateCategoriesRequest $request, int $id)
     {
-        //
+        return $this->crudService->update($request , $id);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Categories $categories)
+    public function destroy(int $id)
     {
-        //
+        return $this->crudService->destroy($id);
     }
 }
