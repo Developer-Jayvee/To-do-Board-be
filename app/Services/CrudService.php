@@ -37,13 +37,12 @@ class CrudService extends Services implements CrudProvider
      * @param  mixed $request
      * @return void
      */
-    public function store(Request $request)
+    public function store(array $input)
     {
         try {
             if(!$this->model){
                 throw new \Exception("Model does not exist.");
             }
-            $input = $request->input();
             if(!$input){
                 throw new \Exception("Missing payload");
             }
@@ -104,7 +103,6 @@ class CrudService extends Services implements CrudProvider
                 $data?->update($input);
                 return $this->successResponse($data);
             }
-
             return $data;
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage());
