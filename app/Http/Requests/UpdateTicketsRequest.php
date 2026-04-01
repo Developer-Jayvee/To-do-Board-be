@@ -12,7 +12,7 @@ class UpdateTicketsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,15 @@ class UpdateTicketsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'max:50',
+            'description' => 'max:255',
+            'label_id' => [
+                'max:2',
+                // function(string $attribute , mixed $value , Closure $fail){
+
+                // }
+            ],
+            'expiration_date' => 'date'
         ];
     }
 }

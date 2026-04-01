@@ -27,12 +27,12 @@ class TicketService extends Services implements TicketProvider
     {
         try {
             $ticket = Tickets::create([
-                'code' => 'T001',
+                'code' => 'T00' . Tickets::count() + 1,
                 'title' => $request->title,
                 'description' => $request->description,
                 'label_id' => $request->label_id,
                 'expiration_date' => date($request->expiration_date),
-                'created_by' => $request->created_by,
+                'created_by' => $request->created_by ?? 1,
             ]);
 
             if(!$ticket){
@@ -45,17 +45,34 @@ class TicketService extends Services implements TicketProvider
             return $this->errorResponse($th->getMessage());
         }
     }
+    /**
+     * Ticket List
+     *
+     * @return JsonResponse
+     */
     public function ticketList(): JsonResponse
     {
         try {
-            $data =  Cache::remember('ticketList', 60, function() {
-                return Tickets::all();
-            });
+            // $data =  Cache::remember('ticketList', 60, function() {
+                $data = Tickets::all();
+            // });
 
             return $this->successResponse($data);
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage());
         }
 
+    }
+    /**
+     * Ticket Update
+     *
+     * @param  mixed $request
+     * @param  mixed $id
+     */
+    public function ticketUpdate(Request $request, int $id)
+    {
+        $crudService = new CrudService(new Tickets);
+
+        return $crudService->update($request,$id);
     }
 }
