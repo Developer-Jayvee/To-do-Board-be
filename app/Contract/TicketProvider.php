@@ -9,4 +9,5 @@ interface TicketProvider
 {
     public function createTicket(Request $request): JsonResponse;
     public function ticketList(): JsonResponse;
+    public function ticketUpdate(Request $request, int $id);
 }

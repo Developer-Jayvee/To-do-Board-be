@@ -59,9 +59,9 @@ class TicketsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTicketsRequest $request, Tickets $tickets)
+    public function update(UpdateTicketsRequest $request, int $id)
     {
-        //
+        return $this->ticketService->ticketUpdate($request,$id);
     }
 
     /**
