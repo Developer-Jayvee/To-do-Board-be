@@ -38,8 +38,8 @@ class CategoriesController extends Controller
     {
         $data = $request->input();
         $response = $this->crudService->store([
-            'code' => 'CAT001',
-            'title' => 'Test Cat',
+            'code' => 'CAT00' .  Categories::count() + 1,
+            'title' => $data['title'],
             'sort' => Categories::count() + 1,
             'created_by' => 1
         ]);
