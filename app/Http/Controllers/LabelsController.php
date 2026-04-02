@@ -34,11 +34,11 @@ class LabelsController extends Controller
             if($labelInfo){
                 throw new \Exception("{$input['title']} is already exists");
             }
-
+            $labelCountIncr = Labels::count() + 1;
             $label = Labels::create([
-                'code' => 'L004',
+                'code' => 'L00'. rand(10,50),
                 'title' => $request->title,
-                'sort' => Labels::count() + 1
+                'sort' => $labelCountIncr
             ]);
 
             return $this->successResponse([
