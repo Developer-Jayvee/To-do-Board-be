@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Contract\TicketProvider;
 use App\Http\Requests\StoreTicketsRequest;
+use App\Http\Requests\UpdateProgressRequest;
 use App\Http\Requests\UpdateTicketsRequest;
 use App\Models\Tickets;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class TicketsController extends Controller
@@ -70,5 +72,9 @@ class TicketsController extends Controller
     public function destroy(Tickets $tickets)
     {
         //
+    }
+    public function updateProgress(UpdateProgressRequest $request , int $id)
+    {
+       return $this->ticketService->updateProgress($request,$id);
     }
 }
