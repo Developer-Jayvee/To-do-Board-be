@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Categories extends Model
 {
@@ -12,4 +13,9 @@ class Categories extends Model
     protected $fillable = [
         'code' , 'title' , 'sort' , 'created_by'
     ];
+
+    public function tickets() : HasMany
+    {
+        return $this->hasMany(Tickets::class,"category_id","id");
+    }
 }

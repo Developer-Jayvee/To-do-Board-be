@@ -3,12 +3,14 @@
 namespace App\Services;
 
 use App\Contract\TicketProvider;
+use App\Enums\HistoryTypes;
+use App\Models\Categories;
 use App\Models\TicketHistory;
 use App\Models\Tickets;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 class TicketService extends Services implements TicketProvider
 {
     /**
@@ -28,10 +30,11 @@ class TicketService extends Services implements TicketProvider
     {
         try {
             $ticket = Tickets::create([
-                'code' => 'T00' . Tickets::count() + 1,
+                'code' => 'T00' . rand(10,100),
                 'title' => $request->title,
                 'description' => $request->description,
                 'label_id' => $request->label_id,
+                'category_id' => 26,
                 'expiration_date' => date($request->expiration_date),
                 'created_by' => $request->created_by ?? 1,
             ]);
@@ -39,9 +42,7 @@ class TicketService extends Services implements TicketProvider
             if(!$ticket){
                 throw new \Exception("Failed to create ticket \n Try again later");
             }
-            return $this->successResponse([
-                'ticket' => $ticket
-            ],'Successfully Created Ticket');
+            return $this->successResponse($ticket,'Successfully Created Ticket');
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage());
         }
@@ -55,10 +56,10 @@ class TicketService extends Services implements TicketProvider
     {
         try {
             // $data =  Cache::remember('ticketList', 60, function() {
-                $data = Tickets::all();
+                $ticketPerCategory = Categories::with(["tickets"])->get();
             // });
 
-            return $this->successResponse($data);
+            return $this->successResponse($ticketPerCategory);
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage());
         }
@@ -93,21 +94,28 @@ class TicketService extends Services implements TicketProvider
             }
             $input = $request->input();
 
-            $from = $input["from"];
-            $to = $input["to"];
+            $previous = $input["previous"];
+            $next = $input["next"];
 
-            if($from === $to){
+            if($previous === $next){
                 return $this->successResponse("");
             }
 
+
             $sort = TicketHistory::where("ticket_id",$id)->count();
-            $progress = TicketHistory::updateOrCreate(
-                [ "ticket_id" => $id , "label_id" => $to , "prev_label_id" => $from , "sort" => $sort + 1 ],
-                [ "ticket_id" => $id ]
-            );
+
+            DB::beginTransaction();
+                $ticket->updateOrFail([
+                    "category_id" => $next
+                ]);
+                $progress = TicketHistory::create([
+                    "ticket_id" => $id , "new_value" => $next , "previous_value" => $previous , "sort" => $sort + 1 , "type" => HistoryTypes::TICKET_PROGRESS
+                ]);
+            DB::commit();
 
             return $this->successResponse($progress,"Successfully updated");
         } catch (\Throwable $th) {
+            DB::rollback();
             return $this->errorResponse($th->getMessage());
         }
 

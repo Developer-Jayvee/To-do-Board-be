@@ -25,12 +25,8 @@ class UpdateTicketsRequest extends FormRequest
         return [
             'title' => 'max:50',
             'description' => 'max:255',
-            'label_id' => [
-                'max:2',
-                // function(string $attribute , mixed $value , Closure $fail){
-
-                // }
-            ],
+            'label_id' => 'max:100|integer',
+            'category_id' => 'max:100|integer',
             'expiration_date' => 'date'
         ];
     }
