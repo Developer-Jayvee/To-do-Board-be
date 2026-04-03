@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Categories;
+use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -22,9 +24,33 @@ class UpdateProgressRequest extends FormRequest
      */
     public function rules(): array
     {
+
         return [
-            "from" => "required",
-            "to" => "required"
+            "previous" => [
+                'required',
+                'integer',
+                fn(string $attribute , int $value , Closure $fail) => $this->categoryChecker($attribute,$value,$fail)
+            ],
+            "next" => [
+                'required',
+                'integer',
+                fn(string $attribute , int $value , Closure $fail) => $this->categoryChecker($attribute,$value,$fail)
+            ]
         ];
+    }
+    /**
+     * categoryChecker
+     *
+     * @param  mixed $attribute
+     * @param  mixed $value
+     * @param  mixed $fail
+     * @return void
+     */
+    private function categoryChecker(string $attribute , int $value , Closure $fail)
+    {
+        $isCategoryExist = Categories::find($value);
+        if(!$isCategoryExist){
+            $fail("Invalid category");
+        }
     }
 }
