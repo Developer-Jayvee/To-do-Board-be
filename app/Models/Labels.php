@@ -9,6 +9,7 @@ class Labels extends Model
     protected $table = "labels";
 
     protected $fillable = [
-        'code' , 'title' , 'sort' , 'created_by'
+        'code' , 'title' , 'sort' , 'inlineCSS', 'created_by'
     ];
+    
 }

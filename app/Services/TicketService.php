@@ -29,7 +29,7 @@ class TicketService extends Services implements TicketProvider
     public function createTicket(Request $request): JsonResponse
     {
         try {
-            $ticket = Tickets::create([
+            $ticket = Tickets::with("label")->create([
                 'code' => 'T00' . rand(10,100),
                 'title' => $request->title,
                 'description' => $request->description,
@@ -42,7 +42,7 @@ class TicketService extends Services implements TicketProvider
             if(!$ticket){
                 throw new \Exception("Failed to create ticket \n Try again later");
             }
-            return $this->successResponse($ticket,'Successfully Created Ticket');
+            return $this->successResponse($ticket->load("label"),'Successfully Created Ticket');
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage());
         }
@@ -56,7 +56,7 @@ class TicketService extends Services implements TicketProvider
     {
         try {
             // $data =  Cache::remember('ticketList', 60, function() {
-                $ticketPerCategory = Categories::with(["tickets"])->get();
+                $ticketPerCategory = Categories::with(["tickets.label"])->get();
             // });
 
             return $this->successResponse($ticketPerCategory);
@@ -73,7 +73,7 @@ class TicketService extends Services implements TicketProvider
      */
     public function ticketUpdate(Request $request, int $id)
     {
-        $crudService = new CrudService(new Tickets);
+        $crudService = new CrudService(new Tickets,true ,"label");
 
         return $crudService->update($request,$id);
     }
@@ -101,19 +101,22 @@ class TicketService extends Services implements TicketProvider
                 return $this->successResponse("");
             }
 
+            if($previous !== $next && $ticket->category_id !== $next){
+                $sort = TicketHistory::where("ticket_id",$id)->count();
+                DB::beginTransaction();
+                    $ticket->updateOrFail([
+                        "category_id" => $next
+                    ]);
+                    $progress = TicketHistory::create([
+                        "ticket_id" => $id , "new_value" => $next , "previous_value" => $previous , "sort" => $sort + 1 , "type" => HistoryTypes::TICKET_PROGRESS
+                    ]);
+                DB::commit();
+            }
 
-            $sort = TicketHistory::where("ticket_id",$id)->count();
-
-            DB::beginTransaction();
-                $ticket->updateOrFail([
-                    "category_id" => $next
-                ]);
-                $progress = TicketHistory::create([
-                    "ticket_id" => $id , "new_value" => $next , "previous_value" => $previous , "sort" => $sort + 1 , "type" => HistoryTypes::TICKET_PROGRESS
-                ]);
-            DB::commit();
-
-            return $this->successResponse($progress,"Successfully updated");
+            return $this->successResponse([
+                'ticket' => Tickets::with(["label"])->find($id),
+                "progress" => isset($progress) ? TicketHistory::find($progress->id) : []
+            ],"Successfully updated");
         } catch (\Throwable $th) {
             DB::rollback();
             return $this->errorResponse($th->getMessage());

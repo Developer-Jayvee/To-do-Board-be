@@ -11,8 +11,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class CrudService extends Services implements CrudProvider
 {
     protected $model;
-    public function __construct($model) {
+    protected bool $hasRelation = false;
+    protected string | array $relation;
+    public function __construct($model , bool $hasRelation = false , string | array $relation = "") {
         $this->model = $model;
+        $this->hasRelation = $hasRelation;
+        $this->relation = $relation;
     }
     /**
      * Display list
@@ -94,14 +98,14 @@ class CrudService extends Services implements CrudProvider
      * @param  mixed $isCustomUpdate
      * @return void
      */
-    public function update(Request $request, int $id , bool $isCustomUpdate = false)
+    public function update(Request $request, int $id , bool $isCustomUpdate = false )
     {
         try {
             $input = $request->input();
             $data = self::checkModelIfExists($id);
             if(!$isCustomUpdate){
                 $data?->update($input);
-                return $this->successResponse($data);
+                return $this->returnResponse($data);
             }
             return $data;
         } catch (\Throwable $th) {
@@ -119,11 +123,37 @@ class CrudService extends Services implements CrudProvider
         if(!$this->model){
             throw new \Exception("Model does not exist.");
         }
-        $result = $this->model->find($id);
+        $data = $this->model;
+        if($this->hasRelation){
+            $data = $data->with($this->relation);
+        }
+
+        $result = $data->find($id);
         if(!$result){
             throw new \Exception("No data found.");
 
         }
         return $result;
+    }
+    /**
+     * returnResponse
+     *
+     * @param  mixed $modelInstance
+     * @return void
+     */
+    private function returnResponse(mixed $modelInstance = null)
+    {
+        try {
+            if(!$modelInstance){
+                throw new \Exception("No model found");
+            }
+
+            if($this->hasRelation){
+                return $this->successResponse($modelInstance->load($this->relation));
+            }
+            return $this->successResponse($modelInstance);
+        } catch (\Throwable $th) {
+            return $this->errorResponse($th->getMessage());
+        }
     }
 }

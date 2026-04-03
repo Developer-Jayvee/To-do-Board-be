@@ -26,7 +26,7 @@ class LabelsController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $input = $request->only('title');
+            $input = (object) $request->all();
             if(!$input){
                 throw new \Exception("Missing title from payload");
             }
@@ -38,7 +38,8 @@ class LabelsController extends Controller
             $label = Labels::create([
                 'code' => 'L00'. rand(10,50),
                 'title' => $request->title,
-                'sort' => $labelCountIncr
+                'sort' => $labelCountIncr,
+                'inlineCSS' => $request->inlineCSS ?? null
             ]);
 
             return $this->successResponse([
@@ -85,7 +86,7 @@ class LabelsController extends Controller
                 throw new \Exception("{$request->title} is already exists");
             }
 
-            $label->update($request->only('title'));
+            $label?->update($request->only(["title","inlineCSS"]));
             return $this->successResponse($label,'Successfully updated');
         } catch (\Throwable $th) {
            return $this->errorResponse($th->getMessage());
