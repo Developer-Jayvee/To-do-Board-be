@@ -18,5 +18,9 @@ class Tickets extends Model
     {
         return $this->belongsTo(Labels::class,"label_id");
     }
+    public function category() : BelongsTo
+    {
+        return $this->belongsTo(Categories::class,"category_id");
+    }
 
 }

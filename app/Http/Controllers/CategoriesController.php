@@ -37,12 +37,15 @@ class CategoriesController extends Controller
     public function store(StoreCategoriesRequest $request)
     {
         $data = $request->input();
-        $response = $this->crudService->store([
+        $toSave = [
             'code' => 'CAT00' . rand(10,50),
             'title' => $data['title'],
             'sort' => Categories::count() + 1,
             'created_by' => 1
-        ]);
+        ];
+        if($request->has("bgColor")) $toSave['bgColor'] = $data['bgColor'];
+        if($request->has("textColor")) $toSave['textColor'] = $data['textColor'];
+        $response = $this->crudService->store($toSave);
         return $response;
     }
 

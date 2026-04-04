@@ -34,13 +34,20 @@ class LabelsController extends Controller
             if($labelInfo){
                 throw new \Exception("{$input['title']} is already exists");
             }
+
             $labelCountIncr = Labels::count() + 1;
-            $label = Labels::create([
+            $toSave = [
                 'code' => 'L00'. rand(10,50),
                 'title' => $request->title,
                 'sort' => $labelCountIncr,
-                'inlineCSS' => $request->inlineCSS ?? null
-            ]);
+            ];
+            if($request->hash("bgColor")){
+                $toSave["bgColor"] = $input->bgColor;
+            }
+            if($request->hash("textColor")){
+                $toSave["textColor"] = $input->textColor;
+            }
+            $label = Labels::create($toSave);
 
             return $this->successResponse([
                 'label' => $label
