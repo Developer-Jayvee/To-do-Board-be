@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table("labels",function(Blueprint $table){
+          Schema::table("categories",function(Blueprint $table){
             $table->string("bgColor")->default("gray")->after("sort");
             $table->string("textColor")->default("black")->after("bgColor");
-            // $table->string("inlineCSS")->default("bg-gray-200 text-black font-semibold")->after("sort");
+            // if (!Schema::hasColumn('categories', 'inlineCSS')) {
+            //     $table->string("inlineCSS")->default("bg-gray-200 text-black font-semibold")->after("sort");
+            // }
         });
     }
 
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropColumns("labels","bgColor");
+        Schema::dropColumns("categories","bgColor");
     }
 };

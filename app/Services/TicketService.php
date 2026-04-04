@@ -29,7 +29,7 @@ class TicketService extends Services implements TicketProvider
     public function createTicket(Request $request): JsonResponse
     {
         try {
-            $ticket = Tickets::with("label")->create([
+            $ticket = Tickets::with(["label","category"])->create([
                 'code' => 'T00' . rand(10,100),
                 'title' => $request->title,
                 'description' => $request->description,
@@ -42,7 +42,7 @@ class TicketService extends Services implements TicketProvider
             if(!$ticket){
                 throw new \Exception("Failed to create ticket \n Try again later");
             }
-            return $this->successResponse($ticket->load("label"),'Successfully Created Ticket');
+            return $this->successResponse($ticket->load(["label","category"]),'Successfully Created Ticket');
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage());
         }
@@ -56,7 +56,7 @@ class TicketService extends Services implements TicketProvider
     {
         try {
             // $data =  Cache::remember('ticketList', 60, function() {
-                $ticketPerCategory = Categories::with(["tickets.label"])->get();
+                $ticketPerCategory = Categories::with(["tickets.label","tickets.category"])->get();
             // });
 
             return $this->successResponse($ticketPerCategory);
@@ -73,7 +73,7 @@ class TicketService extends Services implements TicketProvider
      */
     public function ticketUpdate(Request $request, int $id)
     {
-        $crudService = new CrudService(new Tickets,true ,"label");
+        $crudService = new CrudService(new Tickets,true ,["label","category"]);
 
         return $crudService->update($request,$id);
     }
@@ -113,10 +113,7 @@ class TicketService extends Services implements TicketProvider
                 DB::commit();
             }
 
-            return $this->successResponse([
-                'ticket' => Tickets::with(["label"])->find($id),
-                "progress" => isset($progress) ? TicketHistory::find($progress->id) : []
-            ],"Successfully updated");
+            return $this->successResponse(Tickets::with(["category","label"])->find($id),"Successfully updated");
         } catch (\Throwable $th) {
             DB::rollback();
             return $this->errorResponse($th->getMessage());

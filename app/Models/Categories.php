@@ -11,7 +11,7 @@ class Categories extends Model
     protected $table = "categories";
 
     protected $fillable = [
-        'code' , 'title' , 'sort' , 'created_by'
+        'code' , 'title' , 'sort' , 'bgColor' ,'textColor', 'created_by'
     ];
 
     public function tickets() : HasMany
