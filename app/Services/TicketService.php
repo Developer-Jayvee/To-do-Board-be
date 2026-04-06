@@ -34,7 +34,7 @@ class TicketService extends Services implements TicketProvider
                 'title' => $request->title,
                 'description' => $request->description,
                 'label_id' => $request->label_id,
-                'category_id' => 26,
+                'category_id' => $request->category_id ?? 26,
                 'expiration_date' => date($request->expiration_date),
                 'created_by' => $request->created_by ?? 1,
             ]);
