@@ -21,9 +21,9 @@ class TicketsController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return $this->ticketService->ticketList();
+        return $this->ticketService->ticketList($request);
     }
 
     /**

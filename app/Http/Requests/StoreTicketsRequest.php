@@ -29,12 +29,7 @@ class StoreTicketsRequest extends FormRequest
         return [
             'title' => 'required|max:255',
             'description' => 'required',
-            'label_id' => [
-                'required',
-                // function(string $attribute , mixed $value , Closure $fail){
-
-                // }
-            ],
+            'label_id' =>'required',
             'expiration_date' => 'date'
         ];
     }

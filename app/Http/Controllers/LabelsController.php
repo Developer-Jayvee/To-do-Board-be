@@ -39,6 +39,7 @@ class LabelsController extends Controller
                 'code' => 'L00'. rand(10,500),
                 'title' => $input->title,
                 'sort' => $labelCountIncr,
+                'created_by' => $request->user()->id
             ];
             if($request->has("bgColor")){
                 $toSave["bgColor"] = $input->bgColor;
@@ -60,9 +61,11 @@ class LabelsController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return $this->crudService->index();
+        $list =  Labels::where("created_by",$request->user()->id)->get()->collect();
+        return $this->successResponse($list);
+        // return $this->crudService->index();
     }
 
    /**
@@ -87,12 +90,12 @@ class LabelsController extends Controller
     {
         try {
             $label = $this->crudService->update($request,$id , true);
-            $isAlreadyExist = Labels::where('title',$request->title)->exists();
+            $isAlreadyExist = Labels::where('title',$request->title)->where("id","!=",$id)->exists();
             if($isAlreadyExist){
                 return $this->successResponse("");
             }
 
-            $label?->update($request->only(["title","inlineCSS"]));
+            $label?->update($request->only(["title","bgColor","textColor"]));
             return $this->successResponse($label,'Successfully updated');
         } catch (\Throwable $th) {
            return $this->errorResponse($th->getMessage());

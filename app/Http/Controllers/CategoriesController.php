@@ -25,7 +25,10 @@ class CategoriesController extends Controller
         if($request->has("removeOpen") && $request->removeOpen){
             $where[] = ['title' ,'!=','Open'];
         }
-        return $this->crudService->index($where,true);
+
+        $list = Categories::where($where)->where("created_by",$request->user()->id)->get()->collect();
+        return $this->successResponse($list);
+        // return $this->crudService->index($where,true);
     }
 
     /**
@@ -46,7 +49,7 @@ class CategoriesController extends Controller
             'code' => 'CAT00' . rand(10,5000),
             'title' => $data['title'],
             'sort' => Categories::count() + 1,
-            'created_by' => 1
+            'created_by' => $request->user()->id
         ];
         if($request->has("bgColor")) $toSave['bgColor'] = $data['bgColor'];
         if($request->has("textColor")) $toSave['textColor'] = $data['textColor'];
