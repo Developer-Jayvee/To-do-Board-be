@@ -76,10 +76,10 @@ class AuthService extends Services implements AuthProvider
             ]);
             if($user){
                 //  redirect user to login once registered
-                return self::login([
-                    'username' => $request->username,
-                    'password' => $request->password
-                ]);
+                return $this->successResponse([
+                    "username" => $request->username,
+                    "password" => $request->password
+                ],"Successfully Registered.");
             }
             throw new \Exception('Failed to create an acoount');
 

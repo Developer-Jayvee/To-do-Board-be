@@ -7,6 +7,7 @@ use App\Enums\HistoryTypes;
 use App\Models\Categories;
 use App\Models\TicketHistory;
 use App\Models\Tickets;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -36,7 +37,7 @@ class TicketService extends Services implements TicketProvider
                 'label_id' => $request->label_id,
                 'category_id' => $request->category_id ?? 26,
                 'expiration_date' => date($request->expiration_date),
-                'created_by' => $request->created_by ?? 1,
+                'created_by' => $request->user()->id,
             ]);
 
             if(!$ticket){
@@ -52,11 +53,14 @@ class TicketService extends Services implements TicketProvider
      *
      * @return JsonResponse
      */
-    public function ticketList(): JsonResponse
+    public function ticketList(Request $request): JsonResponse
     {
         try {
             // $data =  Cache::remember('ticketList', 60, function() {
-                $ticketPerCategory = Categories::with(["tickets.label","tickets.category"])->orderBy("sort")->get();
+                $ticketPerCategory = Categories::with(["tickets" => function($query) use($request){
+                    $query->where("created_by",$request->user()->id)->with("label");
+                },"tickets.category"])
+                                    ->orderBy("sort")->get();
             // });
 
             return $this->successResponse($ticketPerCategory);
