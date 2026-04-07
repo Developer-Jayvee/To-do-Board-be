@@ -89,7 +89,7 @@ class LabelsController extends Controller
             $label = $this->crudService->update($request,$id , true);
             $isAlreadyExist = Labels::where('title',$request->title)->exists();
             if($isAlreadyExist){
-                throw new \Exception("{$request->title} is already exists");
+                return $this->successResponse("");
             }
 
             $label?->update($request->only(["title","inlineCSS"]));

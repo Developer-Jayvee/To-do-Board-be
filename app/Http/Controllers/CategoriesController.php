@@ -76,6 +76,11 @@ class CategoriesController extends Controller
     public function update(UpdateCategoriesRequest $request, int $id)
     {
         $input = $request->all();
+
+        $isAlreadyExist = Categories::where('title',$input['title'])->exists();
+        if($isAlreadyExist){
+            return $this->successResponse("");
+        }
         return $this->crudService->update($request , $id);
     }
 
