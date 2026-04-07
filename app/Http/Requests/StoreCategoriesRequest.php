@@ -24,7 +24,7 @@ class StoreCategoriesRequest extends FormRequest
     {
         return [
             'code' => 'max:10',
-            'title' => 'required',
+            'title' => 'required|unique:categories',
         ];
     }
 }

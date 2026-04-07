@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table("labels",function(Blueprint $table){
-            $table->string("bgColor")->default("gray")->after("sort");
-            $table->string("textColor")->default("black")->after("bgColor");
+            $table->string("bgColor")->default("gray")->nullable()->after("sort");
+            $table->string("textColor")->default("black")->nullable()->after("bgColor");
             // $table->string("inlineCSS")->default("bg-gray-200 text-black font-semibold")->after("sort");
         });
     }
@@ -24,5 +24,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropColumns("labels","bgColor");
+        Schema::dropColumns("labels","textColor");
     }
 };

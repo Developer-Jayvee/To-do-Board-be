@@ -18,18 +18,23 @@ class CrudService extends Services implements CrudProvider
         $this->hasRelation = $hasRelation;
         $this->relation = $relation;
     }
+
     /**
      * Display list
      *
+     * @param  mixed $where
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(array $where = array(),bool $isAsc = false): JsonResponse
     {
         try {
             if(!$this->model){
                 throw new \Exception("Model does not exist.");
             }
-            $response = $this->model->all()->collect();
+            $response = $this->model->where($where);
+            if($isAsc) $response = $response->orderBy('sort');
+            if($this->hasRelation) $response = $response->with($this->relation);
+            $response = $response->get()->collect();
             return $this->successResponse($response);
         } catch (\Throwable $th) {
             return $this->errorResponse($th->getMessage());

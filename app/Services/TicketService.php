@@ -56,7 +56,7 @@ class TicketService extends Services implements TicketProvider
     {
         try {
             // $data =  Cache::remember('ticketList', 60, function() {
-                $ticketPerCategory = Categories::with(["tickets.label","tickets.category"])->get();
+                $ticketPerCategory = Categories::with(["tickets.label","tickets.category"])->orderBy("sort")->get();
             // });
 
             return $this->successResponse($ticketPerCategory);
