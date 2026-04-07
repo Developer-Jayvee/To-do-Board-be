@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateCategoriesRequest;
 use App\Models\Categories;
 use App\Services\CrudService;
 use Illuminate\Http\Client\Request;
+use Illuminate\Http\Request as HttpRequest;
 
 class CategoriesController extends Controller
 {
@@ -18,9 +19,13 @@ class CategoriesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(HttpRequest $request)
     {
-        return $this->crudService->index();
+        $where = array();
+        if($request->has("removeOpen") && $request->removeOpen){
+            $where[] = ['title' ,'!=','Open'];
+        }
+        return $this->crudService->index($where,true);
     }
 
     /**
@@ -38,7 +43,7 @@ class CategoriesController extends Controller
     {
         $data = $request->input();
         $toSave = [
-            'code' => 'CAT00' . rand(10,50),
+            'code' => 'CAT00' . rand(10,5000),
             'title' => $data['title'],
             'sort' => Categories::count() + 1,
             'created_by' => 1
@@ -70,6 +75,7 @@ class CategoriesController extends Controller
      */
     public function update(UpdateCategoriesRequest $request, int $id)
     {
+        $input = $request->all();
         return $this->crudService->update($request , $id);
     }
 

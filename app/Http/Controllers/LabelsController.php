@@ -30,21 +30,20 @@ class LabelsController extends Controller
             if(!$input){
                 throw new \Exception("Missing title from payload");
             }
-            $labelInfo = Labels::where('title',$input)->exists();
+            $labelInfo = Labels::where('title',$input->title)->exists();
             if($labelInfo){
-                throw new \Exception("{$input['title']} is already exists");
+                throw new \Exception("{$input->title} is already exists");
             }
-
             $labelCountIncr = Labels::count() + 1;
             $toSave = [
-                'code' => 'L00'. rand(10,50),
-                'title' => $request->title,
+                'code' => 'L00'. rand(10,500),
+                'title' => $input->title,
                 'sort' => $labelCountIncr,
             ];
-            if($request->hash("bgColor")){
+            if($request->has("bgColor")){
                 $toSave["bgColor"] = $input->bgColor;
             }
-            if($request->hash("textColor")){
+            if($request->has("textColor")){
                 $toSave["textColor"] = $input->textColor;
             }
             $label = Labels::create($toSave);
