@@ -22,5 +22,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource("labels",LabelsController::class);
 
         Route::put("progress/{id}",[TicketsController::class,'updateProgress']);
+
+        Route::get('logout',[AuthController::class,'logout']);
     });
 });

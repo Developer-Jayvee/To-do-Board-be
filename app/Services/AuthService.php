@@ -87,4 +87,23 @@ class AuthService extends Services implements AuthProvider
             return $this->errorResponse($th->getMessage(),500,$th);
         }
     }
+    /**
+     * logout
+     *
+     * @param  mixed $request
+     * @return JsonResponse
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        try {
+            if(!$request->user()){
+                throw new \Exception("Error while trying to logout , Please try again later");
+            }
+            $request->user()->tokens()->delete();
+
+            return $this->successResponse("","Successfully logout.");
+        } catch (\Throwable $th) {
+            return $this->errorResponse($th->getMessage());
+        }
+    }
 }
