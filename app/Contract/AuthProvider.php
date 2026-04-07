@@ -8,4 +8,5 @@ interface AuthProvider
 {
     public function login(array $credentials): JsonResponse;
     public function register(Request $request): JsonResponse;
+    public function logout(Request $request) : JsonResponse;
 }
