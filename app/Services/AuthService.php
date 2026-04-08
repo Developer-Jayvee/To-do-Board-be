@@ -1,12 +1,21 @@
 <?php
 
 namespace App\Services;
+
+use App\Console\Commands\CheckDailyTicketExpiration;
 use App\Contract\AuthProvider;
+use App\Jobs\SendExpirationEmailJob;
+use App\Mail\ExpirationEmail;
+use App\Mail\ExpiredEmail;
 use App\Models\User;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use DB;
+use Illuminate\Support\Facades\Log;
 
 class AuthService extends Services implements AuthProvider
 {
@@ -35,9 +44,7 @@ class AuthService extends Services implements AuthProvider
             if(!$username && !$password){
                 throw new \Exception("Missing credentials", 500);
             }
-            $userInfo = User::with(["tickets"=> function($query){
-                                    $query->where("hasNotif",false);
-                                }])
+            $userInfo = User::with(["tickets"])
                         ->where('username',$username)->first();
             if(!$userInfo){
                 throw new \Exception("User does not exist", 500);
@@ -46,8 +53,23 @@ class AuthService extends Services implements AuthProvider
                 throw new \Exception("User credentials is invalid");
             }
             $expiringSoon = $userInfo->tickets()->where("hasNotif",false)->whereDate('expiration_date', '=', now()->addDays(5)->toDateString())->count();
-            $expiringToday = $userInfo->tickets()->where("hasNotif",false)->whereDate('expiration_date', '=', now()->toDateString())->count();
+            $expiringToday = $userInfo->tickets()->where("hasExpired",false)->whereDate('expiration_date', '<=', now()->toDateString())->count();
+
             $token = $userInfo->createToken(self::TOKEN_NAME)->accessToken;
+
+            DB::beginTransaction();
+
+            $isExpired = false;
+            if($expiringSoon){
+                $userInfo->tickets()->each(fn($data) => $data->update(['hasNotif' => true]));
+            }else if($expiringToday){
+                $userInfo->tickets()->each(fn($data) => $data->update(['hasExpired' => true]));
+                $isExpired = true;
+            }
+            SendExpirationEmailJob::dispatch($userInfo->id,$isExpired);
+
+            DB::commit();
+
             return $this->successResponse([
                 'token' => $token,
                 'user' => $userInfo->withoutRelations(),
@@ -58,6 +80,8 @@ class AuthService extends Services implements AuthProvider
             ],'Successfully Login');
 
         } catch (\Throwable $th) {
+            DB::rollback();
+            Log::info($th->getMessage());
             return $this->errorResponse($th->getMessage(),500,$th);
         }
     }

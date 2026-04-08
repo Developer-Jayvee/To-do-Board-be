@@ -58,9 +58,11 @@ class TicketService extends Services implements TicketProvider
         try {
             // $data =  Cache::remember('ticketList', 60, function() {
                 $ticketPerCategory = Categories::with(["tickets" => function($query) use($request){
-                    $query->where("created_by",$request->user()->id)->with("label");
+                    $query->where("created_by",$request->user()->id)->with("label")
+                        ->whereDate('expiration_date', '>=', now()->toDateString())
+                        ->where("hasExpired",false);
                 },"tickets.category"])
-                                    ->orderBy("sort")->get();
+                ->orderBy("sort")->get();
             // });
 
             return $this->successResponse($ticketPerCategory);

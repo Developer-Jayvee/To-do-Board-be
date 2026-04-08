@@ -39,23 +39,24 @@ class CheckDailyTicketExpiration extends Command
 
         $this->info("Checked");
     }
-    private function setEmailSent(int $days  )
+    public function initiate(){
+
+    }
+    public function setEmailSent(int $days  )
     {
 
         $data = Tickets::with("user")
-                    ->whereDate('expiration_date', '=', now()->addDays($days)->toDateString())
-                    ->where("hasNotif",false);
-        if($data->count() === 0) return;
+                    ->whereDate('expiration_date', '=', now()->addDays($days)->toDateString());
 
-        $user = User::has("tickets")->with(['tickets' => function($query){
-            $query->where("hasNotif",false);
-        }])->get();
+        if($data->where("hasNotif",false)->count() === 0) return;
+        if($data->where("hasExpired",false)->count() === 0) return;
+
+        $user = User::has("tickets")->with(['tickets'])->get();
 
         foreach ($user as $key => $usr) {
             $email = $usr->email;
             if($days === 0) Mail::to($email,$usr->name)->send(new ExpiredEmail($usr->tickets,$days));
             else Mail::to($email,$usr->name)->send(new ExpirationEmail($usr->tickets,$days));
-
         }
         $data->each( function($result){
             if($result->user){
