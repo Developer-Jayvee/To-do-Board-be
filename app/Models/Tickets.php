@@ -11,7 +11,7 @@ class Tickets extends Model
     protected $table = "tickets";
 
     protected $fillable = [
-        'code' , 'title' , 'description' , 'expiration_date' ,'label_id' , 'category_id' ,'created_by' , 'hasNotif'
+        'code' , 'title' , 'description' , 'expiration_date' ,'label_id' , 'category_id' ,'created_by' , 'hasNotif' , 'hasExpired'
     ];
 
     public function label() : BelongsTo
