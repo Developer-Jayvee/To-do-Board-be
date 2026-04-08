@@ -11,7 +11,7 @@ class Tickets extends Model
     protected $table = "tickets";
 
     protected $fillable = [
-        'code' , 'title' , 'description' , 'expiration_date' ,'label_id' , 'category_id' ,'created_by'
+        'code' , 'title' , 'description' , 'expiration_date' ,'label_id' , 'category_id' ,'created_by' , 'hasNotif'
     ];
 
     public function label() : BelongsTo
@@ -21,6 +21,10 @@ class Tickets extends Model
     public function category() : BelongsTo
     {
         return $this->belongsTo(Categories::class,"category_id");
+    }
+    public function user() : BelongsTo
+    {
+        return $this->belongsTo(User::class,"created_by");
     }
 
 }
