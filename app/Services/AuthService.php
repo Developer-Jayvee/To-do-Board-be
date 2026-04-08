@@ -35,19 +35,26 @@ class AuthService extends Services implements AuthProvider
             if(!$username && !$password){
                 throw new \Exception("Missing credentials", 500);
             }
-            $userInfo = User::where('username',$username)->first();
-
+            $userInfo = User::with(["tickets"=> function($query){
+                                    $query->where("hasNotif",false);
+                                }])
+                        ->where('username',$username)->first();
             if(!$userInfo){
                 throw new \Exception("User does not exist", 500);
             }
             if(!Hash::check($password,$userInfo->password)){
                 throw new \Exception("User credentials is invalid");
             }
-
+            $expiringSoon = $userInfo->tickets()->where("hasNotif",false)->whereDate('expiration_date', '=', now()->addDays(5)->toDateString())->count();
+            $expiringToday = $userInfo->tickets()->where("hasNotif",false)->whereDate('expiration_date', '=', now()->toDateString())->count();
             $token = $userInfo->createToken(self::TOKEN_NAME)->accessToken;
             return $this->successResponse([
                 'token' => $token,
-                'user' => $userInfo
+                'user' => $userInfo->withoutRelations(),
+                'notif' => [
+                    'soon' => $expiringSoon,
+                    'today' => $expiringToday
+                ]
             ],'Successfully Login');
 
         } catch (\Throwable $th) {
