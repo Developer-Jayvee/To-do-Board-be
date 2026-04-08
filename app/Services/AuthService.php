@@ -66,7 +66,9 @@ class AuthService extends Services implements AuthProvider
                 $userInfo->tickets()->each(fn($data) => $data->update(['hasExpired' => true]));
                 $isExpired = true;
             }
-            SendExpirationEmailJob::dispatch($userInfo->id,$isExpired);
+            if($expiringSoon || $expiringToday){
+                SendExpirationEmailJob::dispatch($userInfo->id,$isExpired);
+            }
 
             DB::commit();
 
