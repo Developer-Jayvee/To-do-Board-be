@@ -30,6 +30,17 @@ env
 - DB_USERNAME=your_username <-- input your database username
 - DB_PASSWORD=your_password  <-- input your database password
 
+### This is for sending email for expiring tickets
+
+- MAIL_MAILER=smtp
+- MAIL_SCHEME=null
+- MAIL_HOST=smtp.gmail.com
+- MAIL_PORT=587
+- MAIL_USERNAME="your_gmail"
+- MAIL_PASSWORD= "password" <-- Read here to generate your own gmail password for this app https://support.google.com/mail/thread/205453566/how-to-generate-an-app-password?hl=en
+- MAIL_FROM_NAME="To Do Board"
+- MAIL_ENCRYPTION=tls
+- MAIL_FROM_ADDRESS="your_gmal"
 
 ## If you are not using docker and want to run manually run these commands
 
