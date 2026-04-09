@@ -24,13 +24,49 @@ cp .env.example .env
 
 env
 - DB_CONNECTION=mysql
-- DB_HOST=db 
+- DB_HOST=db <-- change this if not using docker 
 - DB_PORT=3306
 - DB_DATABASE=toDoBoard_DB
 - DB_USERNAME=your_username <-- input your database username
 - DB_PASSWORD=your_password  <-- input your database password
 
 
+## If you are not using docker and want to run manually run these commands
+
+### 1. Run this to install required dependencies
+```bash
+composer install
+```
+### 2. Install passport
+if error occured while migrating , ignore it continue to the next command
+```bash
+php artisan passport:install
+
+# If not yet migrated run
+php artisan migrate
+```
+### 3. Setup client then input `toDoBoard` then click enter 
+```bash
+php artisan passport:client --personal
+```
+### 4. Generate an env key
+```bash
+php artisan key:generate
+```
+### 5. Run this seed command
+```bash
+php artisan db:seed --class=CategorySeed
+```
+
+### 6. Last run this command for email sending and for running the application
+``` bash
+php artisan queue:work
+
+php artisan serve
+```
+
+
+
 # SERVICE URL
-- API Endpoint http://localhost:8080/api/v1/
+- API Endpoint http://localhost:8080/api/v1/ - You may change the url to the result of php artisan serve command , if you are not using docker but if yes , keep it as is
 - Postman Collection and Environment https://www.dropbox.com/scl/fo/1irpy2qarc24extkzo0nm/AOvdioShPi1XtSU6yPopj_I?rlkey=ohazpy39mtufpfm4udtqr3y88&st=r4tkbqh1&dl=0
