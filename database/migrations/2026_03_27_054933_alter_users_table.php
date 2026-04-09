@@ -13,7 +13,9 @@ return new class extends Migration
     {
         if(Schema::hasTable('users')){
             Schema::table('users', function(Blueprint $table){
-                $table->string("username")->unique()->after('name');
+                if (!Schema::hasColumn('users', 'username')) {
+                    // $table->string("username")->unique()->after('name');
+                }
             });
         }
     }
@@ -24,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('username');
+            // $table->dropColumn('username');
         });
     }
 };

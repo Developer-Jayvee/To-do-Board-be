@@ -20,7 +20,7 @@ class CategorySeed extends Seeder
             'code' => 'CAT00'.$category->count() + rand(20 , 1000),
             'title' => 'Open',
             'sort' => 1,
-            'created_by' => 1
+            'created_by' => 0
         ]);
     }
 }
