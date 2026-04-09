@@ -30,8 +30,20 @@ class TicketService extends Services implements TicketProvider
     public function createTicket(Request $request): JsonResponse
     {
         try {
+            $code = 0;
+            $try = 0;
+            while($try < 100){
+                $randCode = rand(1,10000);
+                $isExist = Tickets::where("code",$randCode)->exists();
+                if(!$isExist){
+                    $code = $randCode;
+                    break;
+                }
+                $try++;
+            }
+
             $ticket = Tickets::with(["label","category"])->create([
-                'code' => 'T00' . rand(10,100),
+                'code' => 'T00' . $code,
                 'title' => $request->title,
                 'description' => $request->description,
                 'label_id' => $request->label_id,

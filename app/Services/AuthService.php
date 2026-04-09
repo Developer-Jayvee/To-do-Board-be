@@ -52,20 +52,24 @@ class AuthService extends Services implements AuthProvider
             if(!Hash::check($password,$userInfo->password)){
                 throw new \Exception("User credentials is invalid");
             }
-            $expiringSoon = $userInfo->tickets()->where("hasNotif",false)->whereDate('expiration_date', '=', now()->addDays(5)->toDateString())->count();
-            $expiringToday = $userInfo->tickets()->where("hasExpired",false)->whereDate('expiration_date', '<=', now()->toDateString())->count();
+            $expiringSoon = $userInfo->tickets()->clone()->where("hasNotif",false)
+                                    ->whereDate('expiration_date', '>', now()->toDateString())
+                                    ->whereDate('expiration_date', '<=', now()->addDays(5)->toDateString())->count();
+            $expiringToday = $userInfo->tickets()->clone()
+                            ->where("hasExpired",false)
+                            ->whereDate('expiration_date', '<=', now()->toDateString())->count();
 
             $token = $userInfo->createToken(self::TOKEN_NAME)->accessToken;
 
             DB::beginTransaction();
 
-            $isExpired = false;
-            if($expiringSoon){
-                $userInfo->tickets()->each(fn($data) => $data->update(['hasNotif' => true]));
-            }else if($expiringToday){
-                $userInfo->tickets()->each(fn($data) => $data->update(['hasExpired' => true]));
-                $isExpired = true;
-            }
+            $isExpired = !$expiringSoon;
+            // if($expiringSoon){
+            //     $userInfo->tickets()->each(fn($data) => $data->update(['hasNotif' => true]));
+            // }else if($expiringToday){
+            //     $userInfo->tickets()->each(fn($data) => $data->update(['hasExpired' => true]));
+            //     $isExpired = true;
+            // }
             if($expiringSoon || $expiringToday){
                 SendExpirationEmailJob::dispatch($userInfo->id,$isExpired);
             }

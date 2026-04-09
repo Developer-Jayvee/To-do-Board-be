@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\LabelsController;
+use App\Http\Controllers\NotifController;
 use App\Http\Controllers\TicketsController;
 use App\Mail\ExpirationEmail;
 use Illuminate\Http\Request;
@@ -26,12 +27,9 @@ Route::prefix('v1')->group(function () {
         Route::put("progress/{id}",[TicketsController::class,'updateProgress']);
 
         Route::get('logout',[AuthController::class,'logout']);
+
+        Route::get("notif",[NotifController::class,'checkNotif']);
     });
 });
 
-Route::get('/send-test-email', function () {
-    $testEmail = 'jayveehidlao11@gmail.com';
-    Mail::to($testEmail)->send(new ExpirationEmail());
 
-    return 'Test email sent!';
-});
